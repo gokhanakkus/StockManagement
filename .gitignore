@@ -1,0 +1,16 @@
+﻿# .NET
+bin/
+obj/
+*.user
+appsettings.json
+appsettings.Development.json
+
+# Node / React
+node_modules/
+dist/
+.env
+
+# Genel
+*.log
+.vs/
+.DS_Store

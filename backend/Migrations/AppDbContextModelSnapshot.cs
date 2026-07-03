@@ -14,6 +14,7 @@ namespace StockManagement.Api.Migrations
     partial class AppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
+
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,9 +63,11 @@ namespace StockManagement.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("Products");
+
                 });
 
             modelBuilder.Entity("StockManagement.Api.Models.StockMovement", b =>
+
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -93,9 +96,11 @@ namespace StockManagement.Api.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("StockMovements");
+
                 });
 
             modelBuilder.Entity("StockManagement.Api.Models.StockMovement", b =>
+
                 {
                     b.HasOne("StockManagement.Api.Models.Product", "Product")
                         .WithMany("StockMovements")
@@ -107,6 +112,7 @@ namespace StockManagement.Api.Migrations
                 });
 
             modelBuilder.Entity("StockManagement.Api.Models.Product", b =>
+
                 {
                     b.Navigation("StockMovements");
                 });

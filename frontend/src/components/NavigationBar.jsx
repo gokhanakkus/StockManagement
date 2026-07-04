@@ -14,6 +14,9 @@ function NavigationBar() {
             <Nav.Link as={Link} to="/products">
               Ürünler
             </Nav.Link>
+            <Nav.Link as={Link} to="/movements">
+              Stok Hareketleri
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>

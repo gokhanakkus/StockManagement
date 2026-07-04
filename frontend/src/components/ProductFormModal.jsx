@@ -1,31 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Modal, Form, Button, Row, Col } from 'react-bootstrap'
 
-const emptyForm = {
-  productCode: '',
-  productName: '',
-  category: '',
-  unit: '',
-  unitPrice: 0,
-  stockQuantity: 0,
-  criticalLevel: 0,
-}
+const emptyForm = {productCode: '',productName: '',category: '',unit: '',unitPrice: 0,stockQuantity: 0, criticalLevel: 0}
 
 function ProductFormModal({ show, onHide, onSubmit, product, saving }) {
   const isEdit = Boolean(product)
   const [form, setForm] = useState(emptyForm)
 
   useEffect(() => {
+
     if (product) {
+
       setForm({
         productCode: product.productCode ?? '',
         productName: product.productName ?? '',
         category: product.category ?? '',
+
         unit: product.unit ?? '',
         unitPrice: product.unitPrice ?? 0,
         stockQuantity: product.stockQuantity ?? 0,
         criticalLevel: product.criticalLevel ?? 0,
       })
+
     } else {
       setForm(emptyForm)
     }
@@ -44,7 +40,7 @@ function ProductFormModal({ show, onHide, onSubmit, product, saving }) {
       category: form.category.trim() || null,
       unit: form.unit.trim() || null,
       unitPrice: Number(form.unitPrice),
-      criticalLevel: Number(form.criticalLevel),
+      criticalLevel: Number(form.criticalLevel)
     }
 
     if (!isEdit) {

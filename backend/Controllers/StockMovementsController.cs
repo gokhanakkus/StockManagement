@@ -15,10 +15,7 @@ public class StockMovementsController : ControllerBase
     private const string MovementIn = "In";
     private const string MovementOut = "Out";
 
-    public StockMovementsController(AppDbContext context)
-    {
-        _context = context;
-    }
+    public StockMovementsController(AppDbContext context){ _context = context;}
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<StockMovementResponseDto>>> GetMovements()
@@ -37,8 +34,7 @@ public class StockMovementsController : ControllerBase
     {
         var productExists = await _context.Products.AnyAsync(p => p.Id == id);
 
-        if (!productExists)
-            return NotFound($"Id={id} olan ürün bulunamadı.");
+        if (!productExists) return NotFound($"Id={id} olan ürün bulunamadı.");
 
         var movements = await _context.StockMovements
             .AsNoTracking()
@@ -53,8 +49,7 @@ public class StockMovementsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<StockMovementResponseDto>> CreateMovement(StockMovementCreateDto dto)
     {
-        if (dto.Quantity <= 0)
-            return BadRequest("Miktar pozitif olmalıdır.");
+        if (dto.Quantity <= 0) return BadRequest("Miktar pozitif olmalıdır.");
 
         if (dto.MovementType != MovementIn && dto.MovementType != MovementOut)
             return BadRequest("Hareket tipi yalnızca 'In' veya 'Out' olabilir.");
@@ -64,8 +59,7 @@ public class StockMovementsController : ControllerBase
 
         var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == dto.ProductId);
 
-        if (product is null)
-            return NotFound($"Id={dto.ProductId} olan ürün bulunamadı.");
+        if (product is null) return NotFound($"Id={dto.ProductId} olan ürün bulunamadı.");
 
         if (dto.MovementType == MovementIn)
         {
@@ -75,8 +69,7 @@ public class StockMovementsController : ControllerBase
         else
         {
 
-            if (product.StockQuantity < dto.Quantity)
-                return BadRequest("Yetersiz stok");
+            if (product.StockQuantity < dto.Quantity) return BadRequest("Yetersiz stok");
 
             product.StockQuantity -= dto.Quantity;
 

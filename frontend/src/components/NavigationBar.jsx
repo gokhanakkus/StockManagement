@@ -11,6 +11,9 @@ function NavigationBar() {
         <Navbar.Toggle aria-controls="main-navbar" />
         <Navbar.Collapse id="main-navbar">
           <Nav className="me-auto">
+            <Nav.Link as={Link} to="/">
+              Dashboard
+            </Nav.Link>
             <Nav.Link as={Link} to="/products">
               Ürünler
             </Nav.Link>

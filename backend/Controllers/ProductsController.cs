@@ -12,18 +12,13 @@ public class ProductsController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public ProductsController(AppDbContext context)
-    {
-        _context = context;
-    }
+    public ProductsController(AppDbContext context){_context = context;}
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetProducts()
     {
         // EF statik. SQL e çeviremediği için önce entity leri DTOya maple
-        var products = await _context.Products
-            .AsNoTracking()
-            .ToListAsync();
+        var products = await _context.Products.AsNoTracking().ToListAsync();
 
         return Ok(products.Select(MapToResponse));
     }
@@ -46,11 +41,9 @@ public class ProductsController : ControllerBase
     public async Task<ActionResult<ProductResponseDto>> GetProduct(int id)
 
     {
-        var product = await _context.Products.AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == id);
+        var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
 
-        if (product is null)
-            return NotFound($"Id={id} olan ürün bulunamadı.");
+        if (product is null) return NotFound($"Id={id} olan ürün bulunamadı.");
 
         return Ok(MapToResponse(product));
     }
@@ -60,22 +53,23 @@ public class ProductsController : ControllerBase
     public async Task<ActionResult<ProductResponseDto>> CreateProduct(ProductCreateDto dto)
     {
         // unique kontrol
-        var codeExists = await _context.Products
-            .AnyAsync(p => p.ProductCode == dto.ProductCode);
+        var codeExists = await _context.Products.AnyAsync(p => p.ProductCode == dto.ProductCode);
 
-        if (codeExists)
-            return BadRequest($"'{dto.ProductCode}' ürün kodu zaten kullanılıyor.");
+        if (codeExists) return BadRequest($"'{dto.ProductCode}' ürün kodu zaten kullanılıyor.");
 
         var product = new Product
+
         {
             ProductCode = dto.ProductCode,
             ProductName = dto.ProductName,
             Category = dto.Category,
             Unit = dto.Unit,
+
             UnitPrice = dto.UnitPrice,
             StockQuantity = dto.StockQuantity,
             CriticalLevel = dto.CriticalLevel,
             CreatedAt = DateTime.Now
+
         };
 
         _context.Products.Add(product);
@@ -90,8 +84,7 @@ public class ProductsController : ControllerBase
     {
         var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
 
-        if (product is null)
-            return NotFound($"Id={id} olan ürün bulunamadı.");
+        if (product is null) return NotFound($"Id={id} olan ürün bulunamadı.");
 
         // productCode unique
         product.ProductName = dto.ProductName;

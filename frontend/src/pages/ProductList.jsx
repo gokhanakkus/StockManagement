@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Table, Button, Alert, Spinner, Container } from 'react-bootstrap'
 import ProductFormModal from '../components/ProductFormModal'
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from '../api/productService'
+import {getProducts,createProduct,updateProduct,deleteProduct} from '../api/productService'
 
 function ProductList() {
   const [products, setProducts] = useState([])

@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Table, Button, Alert, Spinner, Container, Badge } from 'react-bootstrap'
 import MovementFormModal from '../components/MovementFormModal'
-import {
-  getAllMovements,
-  createMovement,
-} from '../api/stockMovementService'
+import {getAllMovements,createMovement} from '../api/stockMovementService'
 import { getProducts } from '../api/productService'
 
 function StockMovements() {

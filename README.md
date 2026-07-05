@@ -11,6 +11,7 @@
 - BCrypt (şifre hash)
 - ClosedXML (Excel export)
 - Swagger / OpenAPI
+
 **Frontend**
 - React (Vite)
 - React Bootstrap

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Table, Button, Alert, Spinner, Container } from 'react-bootstrap'
 import ProductFormModal from '../components/ProductFormModal'
 import {getProducts,createProduct,updateProduct,deleteProduct} from '../api/productService'
 
 function ProductList() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -137,6 +139,14 @@ function ProductList() {
                       onClick={() => handleEdit(p)}
                     >
                       Düzenle
+                    </Button>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => navigate(`/products/${p.id}/history`)}
+                    >
+                      Geçmiş
                     </Button>
                     <Button
                       variant="outline-danger"

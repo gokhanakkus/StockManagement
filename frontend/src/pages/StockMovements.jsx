@@ -5,6 +5,7 @@ import {getAllMovements,createMovement} from '../api/stockMovementService'
 import { getProducts } from '../api/productService'
 
 function StockMovements() {
+  
   const [movements, setMovements] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -36,8 +37,7 @@ function StockMovements() {
     }
   }
 
-  useEffect(() => {
-    loadMovements()
+  useEffect(() => {loadMovements()
     loadProducts()
   }, [])
 

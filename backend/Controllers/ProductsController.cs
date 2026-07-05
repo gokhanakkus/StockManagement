@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StockManagement.Api.Data;
@@ -34,6 +35,55 @@ public class ProductsController : ControllerBase
             .ToListAsync();
 
         return Ok(products.Select(MapToResponse));
+    }
+
+
+    [HttpGet("export")]
+    public async Task<IActionResult> ExportProducts()
+    {
+        var products = await _context.Products.AsNoTracking().ToListAsync();
+
+        using var workbook = new XLWorkbook();
+        var worksheet = workbook.Worksheets.Add("Ürünler");
+
+        var headers = new[]
+        {
+            "Ürün Kodu", "Ürün Adı", "Kategori", "Birim",
+            "Birim Fiyat", "Stok Miktarı", "Kritik Seviye"
+        };
+
+        for (var column = 0; column < headers.Length; column++)
+        {
+            worksheet.Cell(1, column + 1).Value = headers[column];
+        }
+
+        var headerRow = worksheet.Row(1);
+        headerRow.Style.Font.Bold = true;
+        headerRow.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+        var rowIndex = 2;
+        foreach (var product in products)
+        {
+            worksheet.Cell(rowIndex, 1).Value = product.ProductCode;
+            worksheet.Cell(rowIndex, 2).Value = product.ProductName;
+            worksheet.Cell(rowIndex, 3).Value = product.Category;
+            worksheet.Cell(rowIndex, 4).Value = product.Unit;
+            worksheet.Cell(rowIndex, 5).Value = product.UnitPrice;
+            worksheet.Cell(rowIndex, 6).Value = product.StockQuantity;
+            worksheet.Cell(rowIndex, 7).Value = product.CriticalLevel;
+            rowIndex++;
+        }
+
+        worksheet.Columns().AdjustToContents();
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+
+        var fileName = $"Urunler_{DateTime.Now:yyyyMMdd}.xlsx";
+
+        const string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        return File(stream.ToArray(), contentType, fileName);
     }
 
 

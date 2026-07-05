@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Table, Button, Alert, Spinner, Container } from 'react-bootstrap'
 import ProductFormModal from '../components/ProductFormModal'
-import {getProducts,createProduct,updateProduct,deleteProduct} from '../api/productService'
+import {getProducts,createProduct,updateProduct,deleteProduct,exportProducts} from '../api/productService'
 
 function ProductList() {
   const navigate = useNavigate()
@@ -13,6 +13,7 @@ function ProductList() {
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null) // null => yeni ürün
   const [saving, setSaving] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const loadProducts = async () => {
     setLoading(true)
@@ -64,6 +65,18 @@ function ProductList() {
     }
   }
 
+  const handleExport = async () => {
+    setExporting(true)
+    setError('')
+    try {
+      await exportProducts()
+    } catch (err) {
+      setError(getErrorMessage(err, 'Excel dosyası oluşturulurken bir hata oluştu.'))
+    } finally {
+      setExporting(false)
+    }
+  }
+
   const handleDelete = async (product) => {
     const confirmed = window.confirm(
       `"${product.productName}" ürününü silmek istediğinize emin misiniz?`
@@ -81,11 +94,16 @@ function ProductList() {
 
   return (
     <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="mb-0">Ürünler</h2>
-        <Button variant="success" onClick={handleNew}>
-          Yeni Ürün
-        </Button>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-1">Ürünler</h2>
+        <div className="d-flex gap-2">
+          <Button variant="success" onClick={handleExport} disabled={exporting}>
+            {exporting ? 'İndiriliyor...' : "Excel'e Aktar"}
+          </Button>
+          <Button variant="primary" onClick={handleNew}>
+            Yeni Ürün
+          </Button>
+        </div>
       </div>
 
       {error && (

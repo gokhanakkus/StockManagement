@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Table, Button, Alert, Spinner, Container } from 'react-bootstrap'
+import { Table, Button, Alert, Spinner, Container, Form, Row, Col } from 'react-bootstrap'
 import ProductFormModal from '../components/ProductFormModal'
 import {getProducts,createProduct,updateProduct,deleteProduct,exportProducts} from '../api/productService'
 
@@ -14,6 +14,25 @@ function ProductList() {
   const [editingProduct, setEditingProduct] = useState(null) // null => yeni ürün
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
+
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('')
+  const [criticalOnly, setCriticalOnly] = useState(false)
+
+  const categories = [...new Set(products.map((p) => p.category).filter(Boolean))].sort()
+
+  const filteredProducts = products.filter((p) => {
+    const term = search.trim().toLowerCase()
+    const matchesSearch =
+      !term ||
+      p.productName.toLowerCase().includes(term) ||
+      p.productCode.toLowerCase().includes(term)
+
+    const matchesCategory = !category || p.category === category
+    const matchesCritical = !criticalOnly || p.isCritical
+
+    return matchesSearch && matchesCategory && matchesCritical
+  })
 
   const loadProducts = async () => {
     setLoading(true)
@@ -112,6 +131,35 @@ function ProductList() {
         </Alert>
       )}
 
+      <Row className="g-2 mb-3 align-items-center">
+        <Col md={5}>
+          <Form.Control
+            type="search"
+            placeholder="Ürün adı veya kodu ile ara..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </Col>
+        <Col md={4}>
+          <Form.Select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="">Tüm Kategoriler</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </Form.Select>
+        </Col>
+        <Col md={3}>
+          <Form.Check
+            type="checkbox"
+            label="Sadece kritik stok"
+            checked={criticalOnly}
+            onChange={(e) => setCriticalOnly(e.target.checked)}
+          />
+        </Col>
+      </Row>
+
       {loading ? (
         <div className="text-center py-5">
           <Spinner animation="border" role="status" />
@@ -132,15 +180,14 @@ function ProductList() {
             </tr>
           </thead>
           <tbody>
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center text-muted py-4">
-                  Kayıtlı ürün bulunamadı.
+                  {products.length === 0 ? 'Kayıtlı ürün bulunamadı.' : 'Sonuç bulunamadı.'}
                 </td>
               </tr>
             ) : (
-              products.map((p) => (
-                // Stok kritik seviye kırmızı
+              filteredProducts.map((p) => (
                 <tr key={p.id} className={p.isCritical ? 'table-danger' : ''}>
                   <td>{p.productCode}</td>
                   <td>{p.productName}</td>
@@ -162,9 +209,9 @@ function ProductList() {
                       variant="outline-secondary"
                       size="sm"
                       className="me-2"
-                      onClick={() => navigate(`/products/${p.id}/history`)}
+                      onClick={() => navigate(`/products/${p.id}`)}
                     >
-                      Geçmiş
+                      Detay
                     </Button>
                     <Button
                       variant="outline-danger"

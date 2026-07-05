@@ -11,6 +11,8 @@ public class AppDbContext : DbContext
 
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
 
+    public DbSet<User> Users => Set<User>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -29,5 +31,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Product>()
             .Property(p => p.UnitPrice)
             .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Username)
+            .IsUnique();
     }
 }

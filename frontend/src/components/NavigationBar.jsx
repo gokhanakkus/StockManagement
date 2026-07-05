@@ -1,7 +1,16 @@
-import { Navbar, Nav, Container } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Navbar, Nav, Container, Button } from 'react-bootstrap'
+import { Link, useNavigate } from 'react-router-dom'
+import { logout, getUsername } from '../api/authService'
 
 function NavigationBar() {
+  const navigate = useNavigate()
+  const username = getUsername()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
@@ -20,6 +29,12 @@ function NavigationBar() {
             <Nav.Link as={Link} to="/movements">
               Stok Hareketleri
             </Nav.Link>
+          </Nav>
+          <Nav className="align-items-lg-center">
+            <Navbar.Text className="me-3">{username}</Navbar.Text>
+            <Button variant="outline-light" size="sm" onClick={handleLogout}>
+              Çıkış
+            </Button>
           </Nav>
         </Navbar.Collapse>
       </Container>

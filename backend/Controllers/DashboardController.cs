@@ -15,6 +15,7 @@ public class DashboardController : ControllerBase
 
     public DashboardController(AppDbContext context) {_context = context;}
 
+
     [HttpGet("summary")]
     public async Task<ActionResult<DashboardSummaryDto>> GetSummary()
     {
@@ -26,6 +27,7 @@ public class DashboardController : ControllerBase
 
         var categoryDistribution = await _context.Products.GroupBy(p => p.Category).Select(g => new CategoryDistributionDto
 
+
             {
 
                 Category = g.Key ?? "Kategorisiz",
@@ -33,11 +35,13 @@ public class DashboardController : ControllerBase
 
             }).ToListAsync();
 
+
         var recentMovements = await _context.StockMovements
             .AsNoTracking()
             .OrderByDescending(m => m.Date)
             .Take(5) //son 5 hareket
             .Select(m => new RecentMovementDto
+
             {
                 Date = m.Date,
                 ProductName = m.Product!.ProductName,
@@ -45,6 +49,7 @@ public class DashboardController : ControllerBase
                 Quantity = m.Quantity
             })
             .ToListAsync();
+
 
         var summary = new DashboardSummaryDto
         {

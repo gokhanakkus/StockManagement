@@ -23,12 +23,23 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto dto)
+
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+        if (dto == null || string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+        {
+            return BadRequest("Kullanıcı adı ve şifre zorunludur.");
+        }
 
-        if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
 
+        var user = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == dto.Username.ToLower());
+
+
+        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        {
             return Unauthorized("Kullanıcı adı veya şifre hatalı.");
+        }
 
         var token = _tokenService.CreateToken(user);
 

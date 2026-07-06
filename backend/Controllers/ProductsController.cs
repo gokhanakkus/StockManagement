@@ -8,6 +8,7 @@ using StockManagement.Api.Models;
 
 namespace StockManagement.Api.Controllers;
 
+
 [ApiController]
 [Route("api/products")]
 [Authorize]
@@ -20,7 +21,7 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetProducts()
     {
-        // EF statik. SQL e çeviremediği için önce entity leri DTOya maple
+        // EF statik. SQL e çeviremediği için entity leri DTOya map
         var products = await _context.Products.AsNoTracking().ToListAsync();
 
         return Ok(products.Select(MapToResponse));
@@ -64,6 +65,7 @@ public class ProductsController : ControllerBase
         headerRow.Style.Fill.BackgroundColor = XLColor.LightGray;
 
         var rowIndex = 2;
+
         foreach (var product in products)
         {
             worksheet.Cell(rowIndex, 1).Value = product.ProductCode;
@@ -103,6 +105,7 @@ public class ProductsController : ControllerBase
 
     [HttpPost]
     public async Task<ActionResult<ProductResponseDto>> CreateProduct(ProductCreateDto dto)
+
     {
         // unique kontrol
         var codeExists = await _context.Products.AnyAsync(p => p.ProductCode == dto.ProductCode);

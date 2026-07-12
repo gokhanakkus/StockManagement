@@ -21,7 +21,8 @@ public class DashboardController : ControllerBase
     {
         var totalProducts = await _context.Products.CountAsync();
 
-        var totalStockValue = await _context.Products.SumAsync(p => p.StockQuantity * p.UnitPrice);
+        // Boş tabloda SQL SUM, NULL döner; non-nullable decimal'e cast patlamaması için nullable'a çevirip ?? 0 uyguluyoruz.
+        var totalStockValue = await _context.Products.SumAsync(p => (decimal?)(p.StockQuantity * p.UnitPrice)) ?? 0m;
 
         var criticalCount = await _context.Products.CountAsync(p => p.StockQuantity <= p.CriticalLevel);
 

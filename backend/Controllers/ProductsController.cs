@@ -123,7 +123,7 @@ public class ProductsController : ControllerBase
             UnitPrice = dto.UnitPrice,
             StockQuantity = dto.StockQuantity,
             CriticalLevel = dto.CriticalLevel,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
 
         };
 
@@ -141,7 +141,8 @@ public class ProductsController : ControllerBase
 
         if (product is null) return NotFound($"Id={id} olan ürün bulunamadı.");
 
-        // productCode unique
+        // ProductCode ve StockQuantity kasıtlı olarak güncellenmez:
+        // ürün kodu değişmez kimliktir, stok yalnızca StockMovements üzerinden değişir.
         product.ProductName = dto.ProductName;
         product.Category = dto.Category;
         product.Unit = dto.Unit;

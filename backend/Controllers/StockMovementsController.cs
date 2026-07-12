@@ -57,43 +57,58 @@ public class StockMovementsController : ControllerBase
         if (dto.MovementType != MovementIn && dto.MovementType != MovementOut)
             return BadRequest("Hareket tipi sadece 'In' veya 'Out' olabilir.");
 
-        await using var transaction = await _context.Database.BeginTransactionAsync();
+        // Optimistic concurrency: iki eşzamanlı hareket aynı ürünü güncellerse RowVersion
+        // uyuşmazlığı SaveChanges'te DbUpdateConcurrencyException fırlatır. Bu durumda ürünü
+        // taze RowVersion ile yeniden okuyup işlemi tekrar uygularız (lost update önlenir).
+        const int maxRetries = 3;
 
-        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == dto.ProductId);
-        if (product == null)
-            return NotFound($"Id={dto.ProductId} olan ürün bulunamadı.");
-
-
-        // Stok Güncelleme
-        if (dto.MovementType == MovementIn)
+        for (var attempt = 1; ; attempt++)
         {
-            product.StockQuantity += dto.Quantity;
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+            if (product == null)
+                return NotFound($"Id={dto.ProductId} olan ürün bulunamadı.");
+
+            // Stok Güncelleme
+            if (dto.MovementType == MovementIn)
+            {
+                product.StockQuantity += dto.Quantity;
+            }
+            else
+            {
+                if (product.StockQuantity < dto.Quantity)
+                    return BadRequest("Yetersiz stok miktarı.");
+
+                product.StockQuantity -= dto.Quantity;
+            }
+
+            var movement = new StockMovement
+            {
+                ProductId = dto.ProductId,
+                MovementType = dto.MovementType,
+                Quantity = dto.Quantity,
+                Description = dto.Description,
+                Date = DateTime.UtcNow
+            };
+
+            _context.StockMovements.Add(movement);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetMovementsByProduct),
+                    new { id = dto.ProductId }, MapToResponse(movement));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (attempt >= maxRetries)
+                    return Conflict("Stok aynı anda başka bir işlem tarafından güncellendi. Lütfen tekrar deneyin.");
+
+                // Takip edilen bayat entity'leri bırak; sonraki denemede taze veriyle tekrar oku.
+                foreach (var entry in _context.ChangeTracker.Entries().ToList())
+                    entry.State = EntityState.Detached;
+            }
         }
-        else
-        {
-            if (product.StockQuantity < dto.Quantity)
-                return BadRequest("Yetersiz stok miktarı.");
-
-            product.StockQuantity -= dto.Quantity;
-        }
-
-
-        var movement = new StockMovement
-        {
-            ProductId = dto.ProductId,
-            MovementType = dto.MovementType,
-            Quantity = dto.Quantity,
-            Description = dto.Description,
-            Date = DateTime.Now
-        };
-
-
-        _context.StockMovements.Add(movement);
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        return CreatedAtAction(nameof(GetMovementsByProduct),
-            new { id = dto.ProductId }, MapToResponse(movement));
     }
 
 

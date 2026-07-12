@@ -14,7 +14,7 @@ public class StockMovement
     [Required]
     public int Quantity { get; set; }
 
-    public DateTime Date { get; set; } = DateTime.Now;
+    public DateTime Date { get; set; } = DateTime.UtcNow;
 
     public string? Description { get; set; }
 

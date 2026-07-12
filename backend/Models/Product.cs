@@ -22,7 +22,12 @@ public class Product
 
     public int CriticalLevel { get; set; } = 0;
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Eşzamanlı stok güncellemelerinde kayıp güncellemeyi (lost update) önlemek için
+    // optimistic concurrency token. SQL Server rowversion sütununa maplenir.
+    [Timestamp]
+    public byte[]? RowVersion { get; set; }
 
     public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
 }
